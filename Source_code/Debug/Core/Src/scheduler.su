@@ -1,0 +1,9 @@
+scheduler.c:10:6:redToggle	8	static
+scheduler.c:13:6:yellowToggle	8	static
+scheduler.c:16:6:greenToggle	8	static
+scheduler.c:19:6:blueToggle	8	static
+scheduler.c:22:6:whiteToggle	8	static
+scheduler.c:36:6:SCH_Init	4	static
+scheduler.c:39:6:SCH_Dispatch_Tasks	4	static
+scheduler.c:46:9:SCH_Delete_Task	16	static
+scheduler.c:49:6:SCH_Update	4	static
