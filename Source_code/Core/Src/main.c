@@ -19,8 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "string.h"
 #include "global.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -117,10 +117,10 @@ HAL_TIM_Base_Start_IT(&htim2);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	SCH_Add_Task(redToggle, 50, 50);
-	SCH_Add_Task(yellowToggle, 51, 100);
-	SCH_Add_Task(greenToggle, 52, 150);
-	SCH_Add_Task(blueToggle, 53, 200);
-	SCH_Add_Task(whiteToggle, 54, 250);
+	SCH_Add_Task(yellowToggle, 101, 100);
+	SCH_Add_Task(greenToggle, 152, 150);
+	SCH_Add_Task(blueToggle, 203, 200);
+	SCH_Add_Task(whiteToggle, 254, 250);
 
   while (1)
   {
@@ -187,7 +187,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 8000;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 9;
+  htim2.Init.Period = 10;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

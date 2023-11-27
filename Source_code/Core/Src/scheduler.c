@@ -38,14 +38,15 @@ int addTask(worker_t* task){
 		return 0;
 	}
 
-	//find worker with delay <= new task
 	worker_t *current = company.head;
 	worker_t *prev = NULL;
-	while (task->Delay >= current->Delay){
+	int delay_tmp = task->Delay - current->Delay;
+	while (delay_tmp >= 0 && current != NULL){
+		task->Delay = delay_tmp;
 		prev = current;
 		current = current->nextTask;
+		if (current != NULL) delay_tmp -= current->Delay;
 	}
-	// now current is right after task with delay equal or less than New Task
 
 	if (prev == NULL){ // insert at head
 		task->nextTask = current;
