@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "string.h"
 #include "global.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -43,6 +42,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -66,6 +66,24 @@ static void MX_USART1_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
+void redToggle(){
+	HAL_GPIO_TogglePin(red_led_GPIO_Port, red_led_Pin);
+}
+void yellowToggle(){
+	HAL_GPIO_TogglePin(yellow_led_GPIO_Port, yellow_led_Pin);
+}
+void greenToggle(){
+	HAL_GPIO_TogglePin(green_led_GPIO_Port, green_led_Pin);
+}
+void blueToggle(){
+	HAL_GPIO_TogglePin(blue_led_GPIO_Port, blue_led_Pin);
+}
+void whiteToggle(){
+	HAL_GPIO_TogglePin(white_led_GPIO_Port, white_led_Pin);
+}
+void sendSignal(char *str){
+	HAL_UART_Transmit(&huart1,(void *) str, strlen(str), 10);
+}
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -98,6 +116,12 @@ HAL_TIM_Base_Start_IT(&htim2);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	SCH_Add_Task(redToggle, 50, 50);
+	SCH_Add_Task(yellowToggle, 51, 100);
+	SCH_Add_Task(greenToggle, 52, 150);
+	SCH_Add_Task(blueToggle, 53, 200);
+	SCH_Add_Task(whiteToggle, 54, 250);
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -161,7 +185,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7999;
+  htim2.Init.Prescaler = 8000;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 9;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

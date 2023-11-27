@@ -7,47 +7,126 @@
 
 #include "scheduler.h"
 
-void redToggle(){
-	HAL_GPIO_TogglePin(red_led_GPIO_Port, red_led_Pin);
+company_t company;
+int timestamp = 0;
+uint32_t taskid = 0;
+char str[50];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int addTask(worker_t* task){
+	if (company.number >= SCH_MAX_TASKS){
+		return 0 ;
+		//company is full
+	}
+	if (company.number == 0){ // company is empty
+		company.head = task;
+		company.number ++;
+		return 0;
+	}
+
+	//find worker with delay <= new task
+	worker_t *current = company.head;
+	worker_t *prev = NULL;
+	while (task->Delay >= current->Delay){
+		prev = current;
+		current = current->nextTask;
+	}
+	// now current is right after task with delay equal or less than New Task
+
+	if (prev == NULL){ // insert at head
+		task->nextTask = current;
+		current->Delay -= task->Delay;
+		company.head = task;
+	}
+	else if (current == NULL){ // insert at tail
+		prev->nextTask = task;
+	}
+	else{ // insert at middle
+		prev->nextTask = task;
+		task->nextTask = current;
+		current->Delay -= task->Delay;
+	}
+
+	company.number++;
+	return 0;
 }
-void yellowToggle(){
-	HAL_GPIO_TogglePin(yellow_led_GPIO_Port, yellow_led_Pin);
+uint32_t SCH_Add_Task(void (* pFunction)(), uint32_t DELAY, uint32_t PERIOD){
+	worker_t * task = (worker_t *)malloc(sizeof(worker_t));
+	task->taskPointer = pFunction;
+	task->taskID = taskid++;
+	task->Delay = DELAY;
+	task->Period = PERIOD;
+	task->nextTask = NULL;
+
+	addTask(task);
+	return 0;
 }
-void greenToggle(){
-	HAL_GPIO_TogglePin(green_led_GPIO_Port, green_led_Pin);
+int deleteTask(uint32_t taskID){
+	if (company.number == 0) return 0;
+	worker_t *current = company.head;
+	worker_t *prev = NULL;
+
+	while (current->taskID != taskID && current != NULL){
+		prev = current;
+		current = current->nextTask;
+	}
+	// now current is at node with the same ID
+
+	if (current == NULL) return 0; // can't find task
+	if (prev == NULL) { //delete head
+		company.head= current->nextTask;
+		free(current);
+		if (current->nextTask != NULL){
+			current->nextTask->Delay += current->Delay;
+		}
+	}
+	else if (current->nextTask == NULL) //delete tail
+	{
+		free(current);
+		prev->nextTask = NULL;
+	}
+	else{ // delete middle
+		prev->nextTask = current->nextTask;
+		current->nextTask->Delay += current->Delay;
+		current->nextTask = NULL;
+		free(current);
+	}
+	company.number --;
+
+
+	return 0;
 }
-void blueToggle(){
-	HAL_GPIO_TogglePin(blue_led_GPIO_Port, blue_led_Pin);
-}
-void whiteToggle(){
-	HAL_GPIO_TogglePin(white_led_GPIO_Port, white_led_Pin);
-}
-
-
-
-
-
-
-
-
-
-
-
-void SCH_Init(void){
-
+uint8_t SCH_Delete_Task(uint32_t taskID){
+	deleteTask(taskID);
+	return 0;
 }
 void SCH_Dispatch_Tasks(){
-
-}
-//uint32_t SCH_Add_Task(void (* pFunction)(),
-//		uint32_t DELAY, uint32_t PERIOD){
-//
-//}
-uint8_t SCH_Delete_Task(uint32_t taskID){
-
+	while (company.head->Delay == 0 && company.number > 0){
+		sprintf(str, "TaskID %ld timeout at timestamp %d ms \r\n", company.head->taskID, timestamp);
+		sendSignal(str);
+		(*company.head->taskPointer)(); // execute toggle leds
+		if (company.head->Period != 0) SCH_Add_Task(company.head->taskPointer,
+				company.head->Period, company.head->Period);
+		SCH_Delete_Task(company.head->taskID);
+	}
 }
 void SCH_Update(){
-
+	timestamp += 10;
+	if (company.number != 0 && company.head->Delay != 0) company.head->Delay --;
 }
 
 
